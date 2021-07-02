@@ -2,7 +2,7 @@
 
 This is an incomplete list of potential weak points that an attacker might
 want to focus on when looking for ways to violate the integrity of the
-governance system. It's here to help defenders, but "attacker's mindset" is a
+governance system. It's here to help defenders, as "attacker's mindset" is a
 good way to focus attention for the defender. The list should correspond
 pretty closely to the set of assurances that the governance system aims to
 support.
@@ -22,15 +22,16 @@ support for custom validation functions.
 ## Get a voter facet you shouldn't have
 
 Every module that handles voter facets should handle them carefully and ensure
-they don't escape. If you can get access to a voter facet, you can cast a ballot
-and override the preferences of the rightful voter. If you can manufacture voter
-facets that are accepted, you can stuff the ballot box.
+they don't escape. If you can get access to a voter facet (or the main voteCap
+for a VoteCounter), you can cast a ballot and override the preferences of the
+rightful voter. If you can manufacture voter facets that are accepted, you can
+stuff the ballot box.
 
-## Get a ballotCounter to accept votes from a single voter without replacement
+## Get a voteCounter to accept votes from a single voter without replacement
 
-I can't think of a way to evade the way BinaryBallotCounter ensures that each
+I can't think of a way to evade the way BinaryVoteCounter ensures that each
 ballot is only counted once, but it's something to be aware of with new
-BallotCounters, and particularly in combination with new Registrars.
+VoteCounters, and particularly in combination with new Registrars.
 
 ## Break notification so voters don't hear about elections
 
@@ -45,36 +46,36 @@ voters.
 
 ## What shenanigans can be caused by creating multiple questions with the same or very similar text?
 
-The question text used to be unique, but each ballot question now has a handle
-for disambiguation. Voters ought to validate the particulars of any question
-they intend to vote on. Can they be confused by corrections or replacement? Is
-there a vulnerability here, or just a UI support need?
+The question text used to be unique, but each ballot question now has a
+questionHandle for disambiguation. Voters ought to validate the particulars of
+any question they intend to vote on. Can they be confused by corrections or
+replacement? Is there a vulnerability here, or just a UI support need?
 
-## Create a Ballot that refers to a different BallotCounter than the one the registrar will use
+## Create a Question that refers to a different VoteCounter than the one the registrar will use
 
 ## Distribute ballots that don't match the official one from the Registrar
 
 Ballots themselves are not secure. The voter has to get a copy of the ballot
 from the Registrar to have any assurance that it's valid. If someone else
 provides a ballot, they can replace various pieces to fool the voter as to
-what is being voted on.
+what is being voted on or how the votes will be tallied.
 
 ## Ordinary bugs in counting ballots, reporting, etc.
 
-If the code in BallotCounter, Registrar, ContractGovernor has subtle mistakes,
+If the code in VoteCounter, Registrar, ContractGovernor has subtle mistakes,
 wrong results will obtain.
 
-## Produce a discrepancy between Terms and actions in BallotCounter or Registrar
+## Produce a discrepancy between Terms and actions in VoteCounter or Registrar
 
 The voter's assurance that a particular ballot has the effect they expect
-arises in part because the `terms` in the BallotCounter, Registrar,
+arises in part because the `terms` in the VoteCounter, Registrar,
 etc. dictate how those classes will act. If the code is changed to get info
 from hidden parameters or to ignore some of the terms, voters will be misled.
 
 ## Use a timer that is controlled by a party to the vote
 
 Everyone involved relies on the timers used to close voting being platform
-timers, but the timers aren't self-revealing. Participants should compare the
+timers, but timers aren't self-revealing. Participants should compare the
 timers to known platform-provided timers before relying on them. 
 [A related bug has been filed](https://github.com/Agoric/agoric-sdk/issues/3748)
 
@@ -82,15 +83,15 @@ timers to known platform-provided timers before relying on them.
 
 Every registrar will have some notion of who the authorized voters are. They
 need to properly enforce that each voter can vote their weight once. The
-current implementations only support equal weight ballots and known lists of
-voters. Future Registrars and BallotCountes will support other models.  The
-combination of open-entry stake-holder votes with variable weight
-ballotCounters will require even more diligence to ensure there are no avenues
+initial implementation (committeeRegistrar) supports equal weight ballots and
+known voters. Future Registrars and BallotCountes will support other models.
+The combination of open-entry stake-holder votes with variable weight
+voteCounters will require even more diligence to ensure there are no avenues
 for multiply counting votes.
 
-## Registrar accidentally re-use a ballotCounter
+## Registrar accidentally re-use a voteCounter
 
-Each ballotCounter is intended to be used once. If there's a path that allows
+Each voteCounter is intended to be used once. If there's a path that allows
 re-use, this would be a hazard.
 
 ## Does failed question creation throw detectably?
@@ -118,7 +119,7 @@ than a weakness in the protocols or infrastructure.
 
 ## Get contractGovernor to leak paramManager private facet
 
-The contractGovernor tries to ensure that the facet for calling `updateFoo()`
+The contractGovernor needs to ensure that the facet for calling `updateFoo()`
 for a particular paramManager is only available in a visible way, but the code
 there is delicate. Is there a way to highjack the facet that wouldn't be
 detectable to voters or onlookers?
@@ -135,7 +136,8 @@ obvious. Is there a way to evade that detection?
 ## Other Discrepancy between governedContract and ContractGovernor
 
 Are there ways to write governedContracts so they appear to be handled by
-contractGovernor, but other intervention in the update parameters is possible?
+contractGovernor, but other intervention in the update parameters calls is
+possible?
 
 ## Can a cheating governor start up a contract with an invisible wrapper undetectably?
 
