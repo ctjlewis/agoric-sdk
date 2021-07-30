@@ -74,6 +74,10 @@ export default function makeBlockManager({
         p = endBlock(action.blockHeight, action.blockTime);
         break;
 
+      case LIEN_GET_LIENED_AMOUNT:
+        console.info('Got lien amount request')
+        break;
+
       default:
         assert.fail(X`${action.type} not recognized`);
     }
