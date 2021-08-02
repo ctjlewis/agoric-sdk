@@ -90,9 +90,38 @@
  */
 
 /**
+ * @typedef {Passable} Pattern
+ * Patterns can be either Keys or Matchers
+ */
+
+/**
  * @typedef {CopyTagged} CopySet
  */
 
 /**
  * @typedef {CopyTagged} CopyMap
+ */
+
+/**
+ * @typedef {CopyTagged} Matcher
+ */
+
+/**
+ * @callback CheckMatches
+ * @param {Passable} specimen
+ * @param {Pattern} pattern
+ * @param {Checker=} check
+ */
+
+/**
+ * @callback CheckPattern
+ * @param {Passable} allegedPattern
+ * @param {Checker=} check
+ * @returns {boolean}
+ */
+
+/**
+ * @callback GetRankCover
+ * @param {Pattern} pattern
+ * @returns {RankCover}
  */

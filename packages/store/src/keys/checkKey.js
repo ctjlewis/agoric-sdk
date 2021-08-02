@@ -16,43 +16,14 @@ import { checkCopyMap, everyCopyMapKey, everyCopyMapValue } from './copyMap.js';
 
 const { details: X, quote: q } = assert;
 
-/** @type {WeakSet<Key>} */
-const keyMemo = new WeakSet();
-
-/**
- * @param {Passable} val
- * @param {Checker=} check
- * @returns {boolean}
- */
-const checkKey = (val, check = x => x) => {
-  if (!isObject(val)) {
-    // TODO There is not yet a checkPassable, but perhaps there should be.
-    // If that happens, we should call it here instead.
-    assertPassable(val);
-    return true;
-  }
-  if (keyMemo.has(val)) {
-    return true;
-  }
-  // eslint-disable-next-line no-use-before-define
-  const result = checkKeyInternal(val, check);
-  if (result) {
-    // Don't cache the undefined cases, so that if it is tried again
-    // with `assertChecker` it'll throw a diagnostic again
-    keyMemo.add(val);
-  }
-  // Note that we do not memoize a negative judgement, so that if it is tried
-  // again with a checker, it will still produce a useful diagnostic.
-  return result;
-};
-
 /**
  * @param {Passable} val
  * @param {Checker=} check
  * @returns {boolean}
  */
 const checkKeyInternal = (val, check = x => x) => {
-  const checkIt = child => checkKey(child, check) !== undefined;
+  // eslint-disable-next-line no-use-before-define
+  const checkIt = child => checkKey(child, check);
 
   const passStyle = passStyleOf(val);
   switch (passStyle) {
@@ -103,6 +74,36 @@ const checkKeyInternal = (val, check = x => x) => {
     }
   }
 };
+
+/** @type {WeakSet<Key>} */
+const keyMemo = new WeakSet();
+
+/**
+ * @param {Passable} val
+ * @param {Checker=} check
+ * @returns {boolean}
+ */
+export const checkKey = (val, check = x => x) => {
+  if (!isObject(val)) {
+    // TODO There is not yet a checkPassable, but perhaps there should be.
+    // If that happens, we should call it here instead.
+    assertPassable(val);
+    return true;
+  }
+  if (keyMemo.has(val)) {
+    return true;
+  }
+  const result = checkKeyInternal(val, check);
+  if (result) {
+    // Don't cache the undefined cases, so that if it is tried again
+    // with `assertChecker` it'll throw a diagnostic again
+    keyMemo.add(val);
+  }
+  // Note that we do not memoize a negative judgement, so that if it is tried
+  // again with a checker, it will still produce a useful diagnostic.
+  return result;
+};
+harden(checkKey);
 
 /**
  * @param {Passable} val
