@@ -241,12 +241,31 @@
  */
 
 /**
- * @typedef {Object} RegistrarPublic
+ * @typedef {Object} CommonRegistrarPublic
  * @property {() => Subscription<QuestionDetails>} getQuestionSubscription
  * @property {() => Promise<Handle<'Question'>[]>} getOpenQuestions,
- * @property {() => string} getName
  * @property {() => Instance} getInstance
  * @property {(h: Handle<'Question'>) => Promise<Question>} getQuestion
+ */
+
+/**
+ * @typedef {Object} CommitteeRegistrarPublicMixin
+ * @property {() => string} getName
+ */
+
+/**
+ * @typedef {Object} ClaimsRegistrarMixin
+ * @property {() => Invitation} makeVoterInvitation
+ */
+
+/**
+ * @typedef {Object} MakeVoteInvitation
+ * @property {() => ERef<Invitation>} makeVoteInvitation
+ */
+
+/**
+ * @typedef { CommonRegistrarPublic | ClaimsRegistrarMixin } ClaimsRegistrarPublic
+ * @typedef { CommonRegistrarPublic | CommitteeRegistrarPublicMixin } CommitteeRegistrarPublic
  */
 
 /**
@@ -261,9 +280,28 @@
  *  instance, getPoserInvitation() lets them get addQuestion with assurance.
  * @property {() => Promise<Invitation>} getPoserInvitation
  * @property {AddQuestion} addQuestion
- * @property {() => Promise<Invitation>[]} getVoterInvitations
  * @property {() => Subscription<QuestionDetails>} getQuestionSubscription
- * @property {() => RegistrarPublic} getPublicFacet
+ */
+
+/**
+ * @typedef {Object} CommitteeRegistrarMixin
+ * @property {() => Promise<Invitation>[]} getVoterInvitations
+ */
+
+/**
+ * @typedef { RegistrarCreatorFacet | CommitteeRegistrarMixin } CommitteeRegistrarCreatorFacet
+ */
+
+/**
+ * @typedef {Object} GetVoterInvitations
+ * @property {() => Invitation[]} getVoterInvitations
+ */
+
+/**
+ * @typedef {Object} VoterFacet - a facet that the Registrar should hold
+ *   tightly. It allows specification of the vote's weight, so the Registrar
+ *   should distribute an attenuated wrapper that doesn't make that available!
+ * @property {SubmitVote} submitVote
  */
 
 /**
