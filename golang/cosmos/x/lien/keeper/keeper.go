@@ -12,7 +12,7 @@ import (
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 )
 
-// Many interfaces pay lip service to the idea that staking is done with
+// The lien API pays lip service to the idea that staking is done with
 // arbitrary sdk.Coins, but the UnboindingDelegation contains only a bare
 // sdk.Int, therefore the staking token must be a single implicit denom.
 const stakingToken = "ubld"
@@ -63,14 +63,14 @@ func (lk Keeper) GetLien(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins {
 	if err != nil {
 		panic(err)
 	}
-	replyBz, err := lk.callToController(ctx, string(bz))
+	reply, err := lk.callToController(ctx, string(bz))
 	if err != nil {
 		panic(err)
 	}
 	amt := sdk.NewInt(0)
-	err = amt.UnmarshalJSON([]byte(replyBz))
+	err = amt.UnmarshalJSON([]byte(reply))
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf(`Can't decode "%s": %v`, reply, err))
 	}
 	return sdk.NewCoins(sdk.NewCoin(stakingToken, amt))
 }

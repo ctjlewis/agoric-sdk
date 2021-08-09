@@ -560,6 +560,7 @@ type cosmosInitAction struct {
 	SupplyCoins sdk.Coins `json:"supplyCoins"`
 	VibcPort    int       `json:"vibcPort"`
 	VbankPort   int       `json:"vbankPort"`
+	LienPort    int       `json:"lienPort"`
 }
 
 // Name returns the name of the App
@@ -579,6 +580,7 @@ func (app *GaiaApp) MustInitController(ctx sdk.Context) {
 		SupplyCoins: sdk.NewCoins(app.BankKeeper.GetSupply(ctx, "urun")),
 		VibcPort:    app.vibcPort,
 		VbankPort:   app.vbankPort,
+		LienPort:    app.lienPort,
 	}
 	bz, err := json.Marshal(action)
 	if err == nil {
