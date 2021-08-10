@@ -107,6 +107,8 @@ function build(
   const pendingPromises = new Set(); // Promises
   const importedDevices = new Set(); // device nodes
   const deadSet = new Set(); // vrefs that are finalized but not yet reported
+  const possiblyDeadSet = new Set(); // vrefs that might need to be rechecked for being dead
+  const possiblyRetiredSet = new Set(); // vrefs that might need to be rechecked for being retired
 
   function retainExportedVref(vref) {
     // if the vref corresponds to a Remotable, keep a strong reference to it
@@ -115,7 +117,7 @@ function build(
     if (type === 'object' && allocatedByVat) {
       if (virtual) {
         // eslint-disable-next-line no-use-before-define
-        vom.setExported(vref, true);
+        vom.setExportStatus(vref, 'reachable');
       } else {
         const remotable = slotToVal.get(vref).deref();
         assert(remotable, X`somehow lost Remotable for ${vref}`);
@@ -191,8 +193,27 @@ function build(
   const droppedRegistry = new FinalizationRegistry(finalizeDroppedImport);
 
   function processDeadSet() {
-    let doMore = false;
+    const doMore = false;
     const [importsToDrop, importsToRetire, exportsToRetire] = [[], [], []];
+
+    for (const vref of possiblyDeadSet) {
+      // eslint-disable-next-line no-use-before-define
+      if (!getValForSlot(vref)) {
+        deadSet.add(vref);
+      }
+    }
+    possiblyDeadSet.clear();
+
+    for (const vref of possiblyRetiredSet) {
+      // eslint-disable-next-line no-use-before-define
+      if (!getValForSlot(vref) && !deadSet.has(vref)) {
+        // eslint-disable-next-line no-use-before-define
+        if (!vom.isVrefRecognizable(vref)) {
+          importsToRetire.push(vref);
+        }
+      }
+    }
+    possiblyRetiredSet.clear();
 
     for (const vref of deadSet) {
       const { virtual, allocatedByVat, type } = parseVatSlot(vref);
@@ -200,14 +221,16 @@ function build(
       if (virtual) {
         // Representative: send nothing, but perform refcount checking
         // eslint-disable-next-line no-use-before-define
-        doMore = doMore || vom.possibleVirtualObjectDeath(vref);
+        if (vom.possibleVirtualObjectDeath(vref)) {
+          exportsToRetire.push(vref);
+        }
       } else if (allocatedByVat) {
         // Remotable: send retireExport
         exportsToRetire.push(vref);
       } else {
         // Presence: send dropImport unless reachable by VOM
         // eslint-disable-next-line no-lonely-if, no-use-before-define
-        if (!vom.isVrefReachable(vref)) {
+        if (!vom.isPresenceReachable(vref)) {
           importsToDrop.push(vref);
           // eslint-disable-next-line no-use-before-define
           if (!vom.isVrefRecognizable(vref)) {
@@ -420,6 +443,14 @@ function build(
     return wr && wr.deref();
   }
 
+  function addToPossiblyDeadSet(vref) {
+    possiblyDeadSet.add(vref);
+  }
+
+  function addToPossiblyRetiredSet(vref) {
+    possiblyRetiredSet.add(vref);
+  }
+
   const vom = makeVirtualObjectManager(
     syscall,
     allocateExportID,
@@ -427,8 +458,12 @@ function build(
     getValForSlot,
     // eslint-disable-next-line no-use-before-define
     registerValue,
-    m,
+    m.serialize,
+    unmeteredUnserialize,
     cacheSize,
+    FinalizationRegistry,
+    addToPossiblyDeadSet,
+    addToPossiblyRetiredSet,
   );
 
   function convertValToSlot(val) {
@@ -865,7 +900,7 @@ function build(
       }
       const { virtual } = parseVatSlot(vref);
       if (virtual) {
-        vom.setExported(vref, false);
+        vom.setExportStatus(vref, 'recognizable');
       }
     }
   }
@@ -875,11 +910,9 @@ function build(
     const { virtual, allocatedByVat, type } = parseVatSlot(vref);
     assert(allocatedByVat);
     assert.equal(type, 'object');
+    // console.log(`-- liveslots acting on retireExports ${vref}`);
     if (virtual) {
-      // virtual object: ignore for now, but TODO we must still not make
-      // syscall.retireExport for vrefs that were already retired by the
-      // kernel
-      // console.log(`-- liveslots ignoring retireExports ${vref}`);
+      vom.setExportStatus(vref, 'none');
     } else {
       // Remotable
       // console.log(`-- liveslots acting on retireExports ${vref}`);
@@ -921,7 +954,7 @@ function build(
     assert(Array.isArray(vrefs));
     vrefs.map(vref => insistVatType('object', vref));
     vrefs.map(vref => assert(!parseVatSlot(vref).allocatedByVat));
-    // console.log(`-- liveslots ignoring retireImports ${vrefs.join(',')}`);
+    vrefs.forEach(vom.ceaseRecognition);
   }
 
   // TODO: when we add notifyForward, guard against cycles
@@ -967,6 +1000,8 @@ function build(
     WeakSet: vom.VirtualObjectAwareWeakSet,
   });
 
+  const testHooks = harden({ ...vom.testHooks });
+
   function setBuildRootObject(buildRootObject) {
     assert(!didRoot);
     didRoot = true;
@@ -976,6 +1011,8 @@ function build(
       D,
       exitVat,
       exitVatWithFailure,
+      ...vatGlobals,
+      ...inescapableGlobalProperties,
       ...vatPowers,
     };
     if (enableDisavow) {
@@ -1111,6 +1148,7 @@ function build(
     dispatch,
     m,
     deadSet,
+    testHooks,
   });
 }
 
@@ -1183,6 +1221,7 @@ export function makeLiveSlots(
     dispatch,
     setBuildRootObject,
     deadSet,
+    testHooks,
   } = r; // omit 'm'
   return harden({
     vatGlobals,
@@ -1190,6 +1229,7 @@ export function makeLiveSlots(
     dispatch,
     setBuildRootObject,
     deadSet,
+    testHooks,
   });
 }
 
