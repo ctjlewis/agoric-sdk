@@ -240,3 +240,12 @@
  * @returns {InterfaceSpec|undefined} the interface specification, or undefined
  * if not a deemed to be a Remotable
  */
+
+/**
+ * @typedef {Object} FarOptionsRecord
+ * @property {boolean} allowNonPassables
+ */
+
+/**
+ * @typedef {Partial<FarOptionsRecord>} FarOptions
+ */
