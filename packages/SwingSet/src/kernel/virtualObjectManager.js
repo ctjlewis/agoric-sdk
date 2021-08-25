@@ -278,7 +278,6 @@ export function makeVirtualObjectManager(
   // We track imports, to preserve their vrefs against syscall.dropImport
   // when the Presence goes away.
   function addReachablePresenceRef(vref) {
-    // XXX TODO including virtual objects gives lie to the name, but this hack should go away with VO refcounts
     const { type, allocatedByVat, virtual } = parseVatSlot(vref);
     if (type === 'object' && (!allocatedByVat || virtual)) {
       reachableVrefs.add(vref);

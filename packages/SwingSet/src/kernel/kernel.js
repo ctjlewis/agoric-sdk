@@ -885,7 +885,7 @@ export default function buildKernel(
         finish(kres, vres); // TODO call meaningfully on failure too?
       } catch (err) {
         // kernel/device errors cause a kernel panic
-        panic(`error during syscall/device.invoke: ${err}`, err);
+        panic(`error during syscall or device.invoke: ${err}`, err);
         // the kernel is now in a shutdown state, but it may take a while to
         // grind to a halt
         const problem = 'you killed my kernel. prepare to die';
