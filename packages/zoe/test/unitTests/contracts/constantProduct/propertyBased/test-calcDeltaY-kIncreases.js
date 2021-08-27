@@ -1,30 +1,26 @@
 // @ts-check
 
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { test } from '@agoric/zoe/tools/prepare-test-env-ava';
+import { test } from '@agoric/zoe/tools/prepare-test-env-ava.js';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import jsc from 'jsverify';
 import { AmountMath } from '@agoric/ertp';
 
-import {
-  calcDeltaYSellingX,
-  calcDeltaXSellingX,
-} from '../../../../../src/contracts/constantProduct/core';
-import { setupMintKits } from '../setupMints';
+import { calcDeltaYSellingX } from '../../../../../src/contracts/constantProduct/core.js';
+import { setupMintKits } from '../setupMints.js';
 
-// Not currently functional
 const doTest = (x, y, deltaX) => {
   const { run, bld } = setupMintKits();
   const runX = run(x);
   const bldY = bld(y);
   const runDeltaX = run(deltaX);
   const deltaY = calcDeltaYSellingX(runX, bldY, runDeltaX);
-  const newDeltaX = calcDeltaXSellingX(runX, bldY, deltaY);
-
-  const reduction = AmountMath.subtract(runDeltaX, newDeltaX);
-
-  return AmountMath.isGTE(run(23), reduction);
+  const oldK = BigInt(runX.value) * BigInt(bldY.value);
+  const newX = AmountMath.add(runX, runDeltaX);
+  const newY = AmountMath.subtract(bldY, deltaY);
+  const newK = BigInt(newX.value) * BigInt(newY.value);
+  return newK >= oldK;
 };
 
 test('jsverify constant product calcDeltaYSellingX', t => {

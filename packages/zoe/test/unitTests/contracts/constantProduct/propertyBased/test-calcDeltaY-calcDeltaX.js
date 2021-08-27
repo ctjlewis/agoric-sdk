@@ -1,7 +1,7 @@
 // @ts-check
 
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { test } from '@agoric/zoe/tools/prepare-test-env-ava';
+import { test } from '@agoric/zoe/tools/prepare-test-env-ava.js';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import jsc from 'jsverify';
@@ -10,8 +10,8 @@ import { AmountMath } from '@agoric/ertp';
 import {
   calcDeltaYSellingX,
   calcDeltaXSellingX,
-} from '../../../../../src/contracts/constantProduct/core';
-import { setupMintKits } from '../setupMints';
+} from '../../../../../src/contracts/constantProduct/core.js';
+import { setupMintKits } from '../setupMints.js';
 
 const doTest = (x, y, deltaX) => {
   const { run, bld } = setupMintKits();
