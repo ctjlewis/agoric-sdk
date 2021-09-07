@@ -321,6 +321,7 @@ export async function initializeSwingset(
       enableSetup: true,
       managerType: 'local',
       useTranscript: false,
+      boydFrequency: 'never',
     },
   };
 
