@@ -181,7 +181,7 @@ const buildUnrankedQuestion = (questionSpec, counterInstance) => {
     });
 
   /** @type {Question} */
-  return Far('ballot details', {
+  return Far('question details', {
     getVoteCounter: () => counterInstance,
     getDetails,
   });

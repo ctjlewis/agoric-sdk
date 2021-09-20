@@ -158,7 +158,7 @@ voteCounter it uses.
 Voters are managed by a Registrar. Prospective voters should only accept a
 voting API as the outcome of an invitation. The invitation allows you to verify
 the particular registrar instance in use. The registrar's public facet has
-`getQuestionNotifier()`, which allows you to find out about new questions for
+`getQuestionSubscription()`, which allows you to find out about new questions for
 the electorate and `getOpenQuestions()` which lists questions that haven't been
 resolved.
 
