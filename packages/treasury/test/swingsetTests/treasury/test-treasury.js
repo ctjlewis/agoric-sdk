@@ -12,9 +12,12 @@ import { buildVatController, buildKernelBundles } from '@agoric/swingset-vat';
 import bundleSource from '@agoric/bundle-source';
 import { E } from '@agoric/eventual-send';
 
-import liquidateBundle from '../../bundles/bundle-liquidateMinimum.js';
-import autoswapBundle from '../../bundles/bundle-multipoolAutoswap.js';
-import stablecoinBundle from '../../bundles/bundle-stablecoinMachine.js';
+import liquidateBundle from '../../../bundles/bundle-liquidateMinimum.js';
+import autoswapBundle from '../../../bundles/bundle-multipoolAutoswap.js';
+import stablecoinBundle from '../../../bundles/bundle-stablecoinMachine.js';
+import committeeRegistrarBundle from '../../../bundles/bundle-committeeRegistrar.js';
+import contractGovernorBundle from '../../../bundles/bundle-contractGovernor.js';
+import binaryVoteCounterBundle from '../../../bundles/bundle-binaryVoteCounter.js';
 
 const filename = new URL(import.meta.url).pathname;
 const dirname = path.dirname(filename);
@@ -29,6 +32,9 @@ test.before(async t => {
     ['liquidateMinimum', liquidateBundle],
     ['autoswap', autoswapBundle],
     ['treasury', stablecoinBundle],
+    ['committeeRegistrar', committeeRegistrarBundle],
+    ['contractGovernor', contractGovernorBundle],
+    ['binaryVoteCounter', binaryVoteCounterBundle],
   ];
   const contractBundles = {};
   nameToBundle.forEach(([name, bundle]) => {
