@@ -1,4 +1,5 @@
 // @ts-check
+// @jessie-check
 
 export {
   ChoiceMethod,

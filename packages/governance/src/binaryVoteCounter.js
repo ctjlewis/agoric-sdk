@@ -1,4 +1,5 @@
 // @ts-check
+// @jessie-check
 
 import { Far } from '@agoric/marshal';
 import { makePromiseKit } from '@agoric/promise-kit';
@@ -106,7 +107,7 @@ const makeBinaryVoteCounter = (questionSpec, threshold, instance) => {
       if (choice < 0) {
         spoiled += shares;
       } else {
-        tally[choice] += shares;
+        tally[+choice] += shares;
       }
     });
 
