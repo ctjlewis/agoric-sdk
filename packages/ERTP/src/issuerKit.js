@@ -27,6 +27,9 @@ const makeIssuerKit = (
 
   // Add assetKind to displayInfo, or override if present
   const cleanDisplayInfo = coerceDisplayInfo(displayInfo, assetKind);
+  if (optShutdownWithFailure !== undefined) {
+    assert.typeof(optShutdownWithFailure, 'function');
+  }
 
   /**
    * We can define this function to use the in-scope `issuer` variable
