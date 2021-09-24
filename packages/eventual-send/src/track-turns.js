@@ -19,12 +19,13 @@ let hiddenCurrentEvent = 0;
 const VERBOSE = false;
 
 /**
- * @typedef {((...args: any[]) => any) | void} TurnStarterFn
+ * @typedef {((...args: any[]) => any) | undefined} TurnStarterFn
  * An optional function that is not this-sensitive, expected to be called at
  * bottom of stack to start a new turn.
  */
 
 /**
+ * @template {TurnStarterFn[]} T
  * Given a list of `TurnStarterFn`s, returns a list of `TurnStarterFn`s whose
  * `this`-free call behaviors are not observably different to those that
  * cannot see console output. The only purpose is to cause additional
@@ -35,8 +36,8 @@ const VERBOSE = false;
  * to any of the returned `TurnStartFn`s is a receiving event that begins a new
  * turn. This sending event caused each of those receiving events.
  *
- * @param {TurnStarterFn[]} funcs
- * @returns {TurnStarterFn[]}
+ * @param {T} funcs
+ * @returns {T}
  */
 export const trackTurns = funcs => {
   if (typeof globalThis === 'undefined' || !globalThis.assert) {
