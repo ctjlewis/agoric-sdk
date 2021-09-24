@@ -47,6 +47,7 @@ export const assertKeysAllowed = (allowedKeys, record) => {
  * @returns {DisplayInfo}
  */
 export const coerceDisplayInfo = (allegedDisplayInfo, assetKind) => {
+  harden(allegedDisplayInfo);
   assert(
     passStyleOf(allegedDisplayInfo) === 'copyRecord',
     X`A displayInfo can only be a pass-by-copy record: ${allegedDisplayInfo}`,
