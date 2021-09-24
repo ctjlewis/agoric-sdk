@@ -60,5 +60,8 @@ export const looksLikeValue = value =>
  * @param {Brand} brand
  * @returns {brand is Brand}
  */
-export const looksLikeBrand = brand =>
-  isFrozen(brand) && passStyleOf(brand) === 'remotable';
+export const looksLikeBrand = brand => {
+  // We want to avoid throwing in this function. Because `passStyleOf` throws if
+  // `brand` is not frozen, we need to return early if `brand` is not frozen.
+  return isFrozen(brand) && passStyleOf(brand) === 'remotable';
+};

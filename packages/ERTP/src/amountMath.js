@@ -1,7 +1,7 @@
 // @ts-check
 
 import { assert, details as X } from '@agoric/assert';
-import { mustBeComparable } from '@agoric/same-structure';
+import { assertStructure } from '@agoric/marshal';
 
 import './types.js';
 import natMathHelpers from './mathHelpers/natMathHelpers.js';
@@ -114,7 +114,7 @@ const getHelpers = (leftAmount, rightAmount) => {
 /** @type {(amount: Amount, brand?: Brand) => void} */
 const optionalBrandCheck = (amount, brand) => {
   if (brand !== undefined) {
-    mustBeComparable(brand);
+    assertStructure(brand);
     assert.equal(
       amount.brand,
       brand,
@@ -123,6 +123,9 @@ const optionalBrandCheck = (amount, brand) => {
   }
 };
 
+// TODO: reverse arguments to match the non-deprecated order when the
+// deprecated order is removed in
+// https://github.com/Agoric/agoric-sdk/issues/3202
 /** @type {(value: Value, brand: Brand) => Amount} */
 const noCoerceMake = (value, brand) => {
   const amount = harden({ brand, value });

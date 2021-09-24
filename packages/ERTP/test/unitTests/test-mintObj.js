@@ -100,11 +100,13 @@ test('non-fungible tokens example', async t => {
 
   const ticketDescriptionObjects = Array(5)
     .fill('')
-    .map((_, i) => ({
-      seat: i + 1,
-      show: 'The Sofa',
-      start: startDateString,
-    }));
+    .map((_, i) =>
+      harden({
+        seat: i + 1,
+        show: 'The Sofa',
+        start: startDateString,
+      }),
+    );
 
   const balletTicketPayments = ticketDescriptionObjects.map(
     ticketDescription => {
@@ -117,10 +119,9 @@ test('non-fungible tokens example', async t => {
   // Alice will buy ticket 1
   const paymentForAlice = balletTicketPayments[0];
   // Bob will buy tickets 3 and 4
-  const paymentForBob = balletTicketIssuer.combine([
-    balletTicketPayments[2],
-    balletTicketPayments[3],
-  ]);
+  const paymentForBob = balletTicketIssuer.combine(
+    harden([balletTicketPayments[2], balletTicketPayments[3]]),
+  );
 
   // ALICE SIDE
   // Alice bought ticket 1 and has access to the balletTicketIssuer, because it's public

@@ -1,7 +1,7 @@
 // @ts-check
 
 import { assert, details as X, q } from '@agoric/assert';
-import { pureCopy, passStyleOf } from '@agoric/marshal';
+import { passStyleOf } from '@agoric/marshal';
 
 // TODO: assertSubset and assertKeysAllowed are copied from Zoe. Move
 // this code to a location where it can be used by ERTP and Zoe
@@ -53,6 +53,9 @@ export const coerceDisplayInfo = (allegedDisplayInfo, assetKind) => {
   );
   const displayInfo = harden({ ...allegedDisplayInfo, assetKind });
   const displayInfoKeys = harden(['decimalPlaces', 'assetKind']);
-  assertKeysAllowed(displayInfoKeys, allegedDisplayInfo);
+  assertKeysAllowed(displayInfoKeys, displayInfo);
+  if (displayInfo.decimalPlaces !== undefined) {
+    assert.typeof(displayInfo.decimalPlaces, 'number');
+  }
   return displayInfo;
 };
