@@ -221,5 +221,5 @@ test('bad collateral', async t => {
   // p.then(_ => console.log('oops passed'),
   //       rej => console.log('reg', rej));
   // t.rejects(p, / /, 'addCollateral requires the right kind', {});
-  // t.throws(async () => { await p; }, /payment not found for/);
+  // t.throws(async () => { await p; }, /was not a live payment/);
 });
